@@ -88,8 +88,9 @@ parse_args(String) ->
     Args.
 
 success(Result) ->
-    [<<"{\"result\": \"">>, iolist_to_binary(io_lib:format("~p", [Result])),
-     <<"\"}">>].
+    BinaryResult = iolist_to_binary(io_lib:format("~p", [Result])),
+    EscapedResult = re:replace(BinaryResult, <<"\"">>, <<"\\\\\"">>, [global]),
+    [<<"{\"result\": \" ">>, EscapedResult, <<"\"}">>].
 
 failure(Msg) ->
     [<<"{\"failed\": true, \"msg\": \"">>, iolist_to_binary(Msg), <<"\"}">>].
