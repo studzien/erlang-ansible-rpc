@@ -31,6 +31,8 @@ do(Opts) ->
                 failure([io_lib:format("Missing parameters: ~p", [Missing])])
         end
     catch
+        throw:{no_env, Name} ->
+            failure([io_lib:format("Missing variable: ~p", [Name])]);
         Error:Reason ->
             failure([io_lib:format("~p ~p ~p",
                                    [Error, Reason, erlang:get_stacktrace()])])
@@ -42,12 +44,11 @@ start_network(#opts{nametype=NameType, cookie=Cookie} = Opts) ->
 
 make_call(#opts{node=Node, module=Module, function=Function, args=Args}) ->
     case rpc:call(Node, Module, Function, Args) of
-        {badrpc, Reason} ->
-            throw({badrpc, Reason});
-        Result ->
-            Result
+        {badrpc, Reason} -> throw({badrpc, Reason});
+        Result -> Result
     end.
 
+%% ansible - from variable file
 read_opts([OptsFile]) ->
     {ok, Content} = file:read_file(OptsFile),
     {match, Values} = re:run(Content, <<"([^=]*)=\"([^\"]*)\"\s*">>,
@@ -65,7 +66,15 @@ read_opts([OptsFile]) ->
                     ([<<"nametype">>, NameType], Opts) ->
                          Opts#opts{nametype = atom(NameType)}
                  end,
-    lists:foldl(ValueToOpt, #opts{}, Values).
+    lists:foldl(ValueToOpt, #opts{}, Values);
+%% docker - from environmental variables
+read_opts([]) ->
+    #opts{node = atom(env("NODE")),
+          function = atom(env("FUNCTION")),
+          args = parse_args(env("ARGS")),
+          cookie = atom(env("COOKIE")),
+          module = atom(env("MODULE")),
+          nametype = atom(env("NAMETYPE"))}.
 
 check_opts(#opts{}=Opts) ->
     [opts|Values] = tuple_to_list(Opts),
@@ -102,5 +111,11 @@ atom(List) when is_list(List) ->
     list_to_atom(List);
 atom(Binary) when is_binary(Binary) ->
     binary_to_atom(Binary, utf8).
+
+env(Name) ->
+    case os:getenv(Name) of
+        false -> throw({no_env, Name});
+        Value -> Value
+    end.
 
 %% vim: ft=erlang
