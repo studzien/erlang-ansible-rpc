@@ -1,3 +1,0 @@
-#!/bin/bash
-
-../_build/default/bin/erlang-ansible-rpc $@

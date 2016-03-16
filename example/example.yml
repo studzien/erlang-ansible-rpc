@@ -6,7 +6,7 @@
                 -eval \"file:write_file(\\\"erlang.pid\\\", os:getpid()).\" &"
 
       - name: Execute an RPC call
-        erl_rpc: 
+        erlang_rpc: 
             node: test@localhost 
             nametype: shortnames
             cookie: cookie
