@@ -88,11 +88,11 @@ parse_args(String) ->
     Args.
 
 success(Result) ->
-    [<<"{\"result\": ">>, iolist_to_binary(io_lib:format("~p", [Result])),
-     <<"}">>].
+    [<<"{\"result\": \"">>, iolist_to_binary(io_lib:format("~p", [Result])),
+     <<"\"}">>].
 
 failure(Msg) ->
-    [<<"{\"failed\": true, \"msg\": ">>, iolist_to_binary(Msg), <<"}">>].
+    [<<"{\"failed\": true, \"msg\": \"">>, iolist_to_binary(Msg), <<"\"}">>].
 
 node_name(#opts{node = Node}) ->
     list_to_atom("rpc-caller-" ++ atom_to_list(Node)).
