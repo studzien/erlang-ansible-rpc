@@ -14,4 +14,6 @@ RUN apt-get update && \
     rm -rf erlang-solutions_1.0_all.deb && \
     git clone https://github.com/studzien/erlang-ansible-rpc.git
 
-ENTRYPOINT ["/erlang-ansible-rpc/erlang_rpc"]
+ADD run.sh /
+
+ENTRYPOINT ["/run.sh"]
