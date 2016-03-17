@@ -1,0 +1,23 @@
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+      - name: Start an Erlang VM
+        shell: "erl -name test@{{ansible_default_ipv4['address']}} -setcookie cookie \
+                -noshell -noinput +Bd -eval \"file:write_file(\\\"erlang.pid\\\", \
+                                              os:getpid()).\" &"
+
+      - name: Execute an RPC call
+        erlang_rpc_docker: 
+            node: "test@{{ansible_default_ipv4['address']}}"
+            nametype: longnames
+            cookie: cookie
+            module: erlang
+            function: system_info
+            args: "[otp_release]"
+        register: rpc_output
+
+      - debug:
+          var: rpc_output.result
+
+      - name: Kill the Erlang VM
+        shell: "pkill -F erlang.pid"

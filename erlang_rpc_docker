@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+from ansible.module_utils.basic import *
+
+def main():
+    module = AnsibleModule(
+            argument_spec = dict(
+                node = dict(required=True),
+                cookie = dict(required=True),
+                nametype = dict(default='shortnames',
+                                choices=['shortnames', 'longnames']),
+                module = dict(required=True),
+                function = dict(required=True),
+                args = dict(default='[]'),
+                network = dict(default='bridge')
+            )
+    )
+    command = "docker run --rm --net=%(network)s \
+            studzien/erlang-ansible-rpc:latest \
+            %(node)s %(cookie)s %(nametype)s %(module)s %(function)s %(args)s \
+            2>/dev/null" % module.params
+    os.system(command)
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
