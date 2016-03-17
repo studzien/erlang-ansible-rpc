@@ -103,7 +103,8 @@ failure(Msg) ->
     [<<"{\"failed\": true, \"msg\": \"">>, iolist_to_binary(Msg), <<"\"}">>].
 
 node_name(#opts{node = Node}) ->
-    list_to_atom("rpc-caller-" ++ atom_to_list(Node)).
+    {ok, Hostname} = inet:gethostname(),
+    list_to_atom("rpc-caller-" ++ atom_to_list(Node) ++ "@" ++ Hostname).
 
 atom(List) when is_list(List) ->
     list_to_atom(List);
