@@ -36,8 +36,8 @@ do(Opts) ->
                                    [Error, Reason, erlang:get_stacktrace()])])
     end.
 
-start_network(#opts{nametype=NameType, cookie=Cookie} = Opts) ->
-    {ok, _Pid} = net_kernel:start([node_name(Opts), NameType]),
+start_network(#opts{nametype=NameType, cookie=Cookie}) ->
+    {ok, _Pid} = net_kernel:start([node_name(), NameType]),
     true = erlang:set_cookie(node(), Cookie).
 
 make_call(#opts{node=Node, module=Module, function=Function, args=Args}) ->
@@ -102,9 +102,8 @@ success(Result) ->
 failure(Msg) ->
     [<<"{\"failed\": true, \"msg\": \"">>, iolist_to_binary(Msg), <<"\"}">>].
 
-node_name(#opts{node = Node}) ->
-    {ok, Hostname} = inet:gethostname(),
-    list_to_atom("rpc-caller-" ++ atom_to_list(Node) ++ "@" ++ Hostname).
+node_name() ->
+    'rpc-caller@localhost'.
 
 atom(List) when is_list(List) ->
     list_to_atom(List);
